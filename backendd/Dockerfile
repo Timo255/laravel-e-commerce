@@ -1,13 +1,19 @@
-FROM php:8.2 as php
+# Use official PHP-FPM image
+FROM php:8.3-fpm
 
-WORKDIR /var/www
+# Install system dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
+    git curl libpng-dev libjpeg-dev libfreetype6-dev libzip-dev unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql gd zip bcmath
 
-RUN apt-get update && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng-dev
-RUN docker-php-ext-install -j$(nproc) pdo_mysql
+# Install Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
+# Set working directory
+WORKDIR /var/www/html
 
-COPY composer.lock composer.json ./    
-
+# Copy application files
 COPY . .
 
 # COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
