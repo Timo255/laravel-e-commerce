@@ -26,4 +26,4 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 EXPOSE 8000
 
 # Start Laravel server
-CMD ["php","artisan","migrate","--force","php","artisan","db:seed","php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["sh","-c","php artisan migrate --seed && php artisan serve --host=0.0.0.0 --port=8000"]
