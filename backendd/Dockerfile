@@ -18,5 +18,8 @@ COPY . .
 
 # COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
 
+# Set permissions for Laravel storage and cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 ENV PORT=8000
 ENTRYPOINT [ "docker/entrypoint.sh" ]
