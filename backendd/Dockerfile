@@ -17,11 +17,12 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Laravel setup
-RUN php artisan migrate --force && \
-    php artisan db:seed && \
-    php artisan config:clear && \
-    php artisan route:clear && \
-    php artisan view:clear
+# RUN php artisan migrate --force && \
+#     php artisan db:seed && \
+#     php artisan config:clear && \
+#     php artisan route:clear && \
+#     php artisan view:clear
+RUN php artisan migrate --force && php artisan db:seed
 
 CMD ["php-fpm"]
 
