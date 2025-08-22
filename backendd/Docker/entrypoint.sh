@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! -f "vendor/autoload.php" ]; then
-    composer install --no-progress --no-interaction
+    composer install --no-dev --optimize-autoloade
 fi
 
 if [ ! -f ".env" ]; then
@@ -11,12 +11,12 @@ else
     echo "env file exists."
 fi
 
-php artisan migrate
-php artisan db:seed
+# php artisan migrate
+# php artisan db:seed
 # php artisan breeze:install api
-php artisan key:generate
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
+# php artisan key:generate
+# php artisan cache:clear
+# php artisan config:clear
+# php artisan route:clear
 php artisan serve --port=$PORT --host=0.0.0.0 --env=.env
 exec docker-php-entrypoint "$@"

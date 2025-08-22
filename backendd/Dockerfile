@@ -1,16 +1,29 @@
-FROM php:8.2 as php
+# Use official PHP-FPM image
+FROM php:8.3-fpm
 
-WORKDIR /var/www
+# Install system dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
+    git curl libpng-dev libjpeg-dev libfreetype6-dev libzip-dev unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql gd zip bcmath
 
-RUN apt-get update && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng-dev
-RUN docker-php-ext-install -j$(nproc) pdo_mysql
+# Install Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
+# Set working directory
+WORKDIR /var/www/html
 
-COPY composer.lock composer.json ./    
-
+# Copy application files
 COPY . .
 
-# COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-ENV PORT=8000
-ENTRYPOINT [ "docker/entrypoint.sh" ]
+# Set permissions for Laravel storage and cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Expose Laravel port
+EXPOSE 8000
+
+# Start Laravel server
+CMD ["sh","-c","php artisan migrate --seed && php artisan serve --host=0.0.0.0 --port=8000"]
