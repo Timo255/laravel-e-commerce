@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: laravel-app
+    env: docker
+    plan: starter
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: bcy80gwt0ztua5sm4jha-mysql.services.clever-cloud.com
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        value: bcy80gwt0ztua5sm4jha
+      - key: DB_USERNAME
+        value: uzjp4ywzizrzltvi
+      - key: DB_PASSWORD
+        value: pHrRSgvRLq3AkIMPsCfN
+      - key: REDIS_HOST
+        value: redis-14189.c285.us-west-2-2.ec2.redns.redis-cloud.com
+      - key: REDIS_PORT
+        value: 14189
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 465
+      - key: MAIL_USERNAME
+        value: <mail-username>
+      - key: MAIL_PASSWORD
+        value: sdbnafapvnmivzsr
+      - key: MAIL_ENCRYPTION
+        value: ssl
+      - key: MAIL_FROM_ADDRESS
+        value: timothykimari25@gmail.com
+    startCommand: >
+      php artisan migrate --force &&
+      php artisan serve --host=0.0.0.0 --port=8000
