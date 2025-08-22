@@ -25,7 +25,7 @@ RUN composer install --no-dev --optimize-autoloader
 # RUN php artisan migrate --force && php artisan db:seed
 
 # CMD ["php-fpm"]
-CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8000"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"]
 
 
 
