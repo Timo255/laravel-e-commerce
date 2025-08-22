@@ -40,7 +40,7 @@ services:
         value: ssl
       - key: MAIL_FROM_ADDRESS
         value: timothykimari25@gmail.com
-    startCommand: >
-      php artisan migrate --force &&
-      php artisan db:seed --force &&
-      php artisan serve --host=0.0.0.0 --port=8000
+    # startCommand: >
+    #   php artisan migrate --force &&
+    #   php artisan db:seed --force &&
+    #   php artisan serve --host=0.0.0.0 --port=8000
