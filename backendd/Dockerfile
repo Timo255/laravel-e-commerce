@@ -22,9 +22,11 @@ RUN composer install --no-dev --optimize-autoloader
 #     php artisan config:clear && \
 #     php artisan route:clear && \
 #     php artisan view:clear
-RUN php artisan migrate --force && php artisan db:seed
+# RUN php artisan migrate --force && php artisan db:seed
 
-CMD ["php-fpm"]
+# CMD ["php-fpm"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8000"]
+
 
 
 # # Start Laravel server
