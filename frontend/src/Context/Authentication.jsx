@@ -27,6 +27,7 @@ const Authentication = ({ children }) => {
   const csrf = () => axios.get("/sanctum/csrf-cookie");
 
   const getUser = async () => {
+    // await csrf();
     try {
       setLoading(true);
       const { data } = await axios.get("/api/user");

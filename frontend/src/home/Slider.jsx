@@ -3,20 +3,29 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import leftArrow from "/images/left.png";
 import rightArrow from "/images/right arrow.png";
+import useAuth from "../hooks/useAuth";
 
 const Slider = () => {
   const [productsSlider, setProductsSlider] = useState();
   const [slideIndex, setSlideIndex] = useState(1);
+  const { setLoading } = useAuth();
 
   useEffect(() => {
     const getSliderProducts = async () => {
-      const {data} = await axios.get(
-        `${import.meta.env.VITE_APIURL}/api/sliderProducts`
-      );
-      console.log("slider : ",data?.prds);
-      setProductsSlider(data?.prds);
+      try {
+        setLoading(true);
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_APIURL}/api/sliderProducts`
+        );
+        console.log("slider : ", data?.prds);
+        setProductsSlider(data?.prds);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
     };
     getSliderProducts();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -75,11 +84,19 @@ const Slider = () => {
                 </div>
                 <div className="advert-img">
                   <img
-                    src={`${import.meta.env.VITE_APIURL}/images/${slide.imgLg439}`}
+                    src={`${import.meta.env.VITE_APIURL}/images/${
+                      slide.imgLg439
+                    }`}
                     alt=""
-                    srcSet={`${import.meta.env.VITE_APIURL}/images/${slide.imgLg439} 439w,
-                               ${import.meta.env.VITE_APIURL}/images/${slide.imgMd309} 209w,
-                               ${import.meta.env.VITE_APIURL}/images/${slide.imgMd360} 360w`}
+                    srcSet={`${import.meta.env.VITE_APIURL}/images/${
+                      slide.imgLg439
+                    } 439w,
+                               ${import.meta.env.VITE_APIURL}/images/${
+                      slide.imgMd309
+                    } 209w,
+                               ${import.meta.env.VITE_APIURL}/images/${
+                      slide.imgMd360
+                    } 360w`}
                     sizes="(max-width: 480px) 360px,
                                 (max-width: 1024px) 309px, 439px"
                   />

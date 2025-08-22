@@ -5,7 +5,7 @@ import axios from "../axiosApi/axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
-  const { login, getUser, isLoading, setLoading,auth } = useAuth();
+  const { login, getUser, isLoading, setLoading,auth,csrf } = useAuth();
 
  
 
@@ -72,6 +72,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     // await csrf();
+    await csrf();
     try {
       setLoading(true);
       const response = await axios.post(

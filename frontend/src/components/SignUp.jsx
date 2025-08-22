@@ -41,7 +41,7 @@ const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const { getUser, isLoading, setLoading } = useAuth();
+  const { getUser, isLoading, setLoading, csrf } = useAuth();
 
   useEffect(() => {
     userRef.current.focus(); //focus on user Input field when component loads
@@ -85,7 +85,7 @@ const SignUp = () => {
       setErrMsg("Invalid Entry");
       return;
     }
-
+    await csrf();
     try {
       setLoading(true);
       const response = await axios.post(
