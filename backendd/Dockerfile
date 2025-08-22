@@ -17,7 +17,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Laravel setup
-RUN php artisan migrate && \
+RUN php artisan migrate --force && \
     php artisan db:seed && \
     php artisan config:clear && \
     php artisan route:clear && \
