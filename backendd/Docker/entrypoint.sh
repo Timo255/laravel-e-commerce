@@ -11,6 +11,7 @@ else
     echo "env file exists."
 fi
 
+chmod -R 775 storage bootstrap/cache
 php artisan migrate --force
 # php artisan db:seed
 # php artisan breeze:install api
