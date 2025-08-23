@@ -1,11 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
-use Illuminate\Http\Middleware\HandleCors;
-use App\Http\Middleware\EnsureEmailIsVerified;
+use Illuminate\Foundation\Configuration\Exceptions;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,27 +12,28 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // --- Global Middleware ---
-        $middleware->web(prepend: [
-            HandleCors::class, // Built-in CORS for web routes
-        ]);
+        // Enable built-in Laravel CORS middleware
+        $middleware->prependToGroup('api', \Illuminate\Http\Middleware\HandleCors::class);
 
+        // Sanctum middleware for SPA authentication
         $middleware->api(prepend: [
-            HandleCors::class, // Built-in CORS for API routes
-            EnsureFrontendRequestsAreStateful::class, // Sanctum session handling
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
 
-        // Middleware aliases
-        $middleware->alias([
-            'verified' => EnsureEmailIsVerified::class,
-        ]);
-
-        // CSRF configuration
+        // CSRF exceptions for API routes
         $middleware->validateCsrfTokens(except: [
-            '*', // Allow API requests from external clients
+            'api/*',
+            'sanctum/csrf-cookie',
+            'login',
+            'logout',
+            'register',
+        ]);
+
+        // Optional: Middleware alias
+        $middleware->alias([
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })
-    ->create();
+    })->create();
