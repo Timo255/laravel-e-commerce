@@ -5,29 +5,16 @@ RUN apt-get update && apt-get install -y \
     git curl unzip libpq-dev libonig-dev libzip-dev zip \
     && docker-php-ext-install pdo pdo_mysql mbstring zip
 
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy app files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
 
-# Laravel setup
-# RUN php artisan migrate --force && \
-#     php artisan db:seed && \
-#     php artisan config:clear && \
-#     php artisan route:clear && \
-#     php artisan view:clear
-# RUN php artisan migrate --force && php artisan db:seed
-
-# CMD ["php-fpm"]
-CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"]
+ENV PORT=8000
+ENTRYPOINT [ "docker/entrypoint.sh" ]
 
 
-
-# # Start Laravel server
-# CMD ["sh","-c","php artisan migrate --seed && php artisan serve --host=0.0.0.0 --port=8000"]

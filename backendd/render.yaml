@@ -4,7 +4,7 @@ services:
     env: docker
     plan: starter
     autoDeploy: true
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ENV
         value: production
@@ -26,6 +26,8 @@ services:
         value: redis-14189.c285.us-west-2-2.ec2.redns.redis-cloud.com
       - key: REDIS_PORT
         value: 14189
+      - key: REDIS_PASSWORD
+        value: 0v90zcNZJl8cKMh8ukUg1fPx446A30V5
       - key: MAIL_MAILER
         value: smtp
       - key: MAIL_HOST
@@ -40,7 +42,6 @@ services:
         value: ssl
       - key: MAIL_FROM_ADDRESS
         value: timothykimari25@gmail.com
-    # startCommand: >
-    #   php artisan migrate --force &&
-    #   php artisan db:seed --force &&
-    #   php artisan serve --host=0.0.0.0 --port=8000
+    startCommand: >
+      php artisan migrate --force &&
+      php artisan serve --host=0.0.0.0 --port=8000
