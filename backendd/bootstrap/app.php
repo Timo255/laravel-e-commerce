@@ -12,23 +12,25 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Ensure CORS is applied to API requests
+        // CORS Middleware
         $middleware->api(prepend: [
             \Fruitcake\Cors\HandleCors::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
 
-        // Optional: Apply CORS to web routes as well (not strictly necessary for API auth)
         $middleware->web(prepend: [
             \Fruitcake\Cors\HandleCors::class,
         ]);
 
+        // Alias for email verification
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
 
+        // CSRF Token Validation (disable for API routes)
         $middleware->validateCsrfTokens(except: ['*']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->create();
