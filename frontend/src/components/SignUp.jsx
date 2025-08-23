@@ -88,6 +88,7 @@ const SignUp = () => {
     // await csrf();
     try {
       setLoading(true);
+      await axios.get("/sanctum/csrf-cookie"); // get CSRF token
       const response = await axios.post(
         "/register",
         JSON.stringify({
