@@ -25,7 +25,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    'allowed_origins' => ['https://laravel-e-commerce-frontend.onrender.com','https://laravel-e-commerce-vd78.onrender.com'],
 
     'allowed_origins_patterns' => [],
 
