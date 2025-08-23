@@ -15,9 +15,12 @@ return [
     |
     */
 
-    'stateful' => [
-    'laravel-e-commerce-frontend.onrender.com',
-    ],
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'localhost,127.0.0.1,laravel-e-commerce-frontend.onrender.com')),
+
+
+    // 'stateful' => [
+    // 'laravel-e-commerce-frontend.onrender.com',
+    // ],
 
     // 'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
     //     '%s%s%s',
