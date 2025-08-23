@@ -85,7 +85,7 @@ const SignUp = () => {
       setErrMsg("Invalid Entry");
       return;
     }
-    await csrf();
+    // await csrf();
     try {
       setLoading(true);
       const response = await axios.post(
