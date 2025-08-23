@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
+        $middleware->validateCsrfTokens(except: ['api/*', 'sanctum/csrf-cookie', 'login', 'logout','register','forgot-password','reset-password']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
