@@ -3,11 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
-header('Access-Control-Allow-Origin: https://laravel-e-commerce-frontend.onrender.com');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
-
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...

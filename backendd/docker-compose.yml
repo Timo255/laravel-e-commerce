@@ -1,79 +1,18 @@
-version: "3"
+version: "2.38.2"
 services:
     
-    #PHP Service
-    php:
-       build:
-          context: .
-          target: php
-          args:
-              - APP_ENV=${APP_ENV}
-       environment:
-           APP_ENV: ${APP_ENV}
-           CONTAINER_ROLE: app
-           DB_HOST: database
-           DB_DATABASE: ${DB_DATABASE}
-           DB_USERNAME: ${DB_USERNAME}
-           DB_PASSWORD: ${DB_PASSWORD}
-           DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-           MAIL_MAILER: ${MAIL_MAILER}
-           MAIL_HOST: ${MAIL_HOST}
-           MAIL_PORT: ${MAIL_PORT}
-           MAIL_USERNAME: ${MAIL_USERNAME}
-           MAIL_PASSWORD: ${MAIL_PASSWORD}
-           MAIL_ENCRYPTION: ${MAIL_ENCRYPTION}
-           MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}
-           REDIS_HOST: redis
-           REDIS_PORT: ${REDIS_PORT}
-      #  working_dir: /var/www
-       volumes:
-          - .:/var/www
-       ports:
-          - "8000:8000"
-       depends_on:
-          -  database         
-          -  redis
-       networks:
-            - app            
-
     #Database Server
     database:
-       image: mysql:latest
+       image: mysql:8.0
        ports:
-            - 3306:3306
+         - 3306:3306 # internally/local:externally
        environment:
-            - MYSQL_DATABASE=${DB_DATABASE}
-            - MYSQL_USER=${DB_USERNAME}
-            - MYSQL_PASSWORD=${DB_PASSWORD}
-            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+         - MYSQL_DATABASE=${DB_DATABASE}
+         - MYSQL_USER=${DB_USERNAME}
+         - MYSQL_PASSWORD=${DB_PASSWORD}
+         - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
        volumes:
-            - db-data:/var/lib/mysql
-       networks:
-            - app     
-    phpmyadmin:
-       image: phpmyadmin:5.2.1-apache
-       ports:
-            - "8383:80"
-       environment:
-           PMA_HOST: ${DB_HOST}
-           PMA_PORT: ${DB_PORT}
-           PMA_USER: root
-           PMA_PASSWORD: ${DB_PASSWORD}
-       depends_on:
-            - database
-       networks:
-            - app                  
-
-    # Redis Server
-    redis:
-       image: redis:latest
-       command: redis-server --requirepass 1234567 # this command will start every time the redis container starts
-       ports:
-          - 6379:6379
-       networks:
-            - app   
-
-            
+         - db-data:/var/lib/mysql
 
     # phpmyadmin:
     #     image: phpmyadmin
@@ -89,6 +28,3 @@ services:
 
 volumes:
    db-data: ~ 
-networks:
-    app:
-        driver: bridge 

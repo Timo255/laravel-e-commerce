@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
@@ -20,22 +21,6 @@ return [
 
     'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
 
-    'paths' => [
-        'api/*',
-        'sanctum/csrf-cookie',
-        'login',
-        'logout',
-        'register',
-    ],
-
-    'allowed_methods' => ['*'],
-
-    'allowed_origins' => [
-        'https://laravel-e-commerce-frontend.onrender.com',
-        'http://localhost:5173'
-    ],
-
-
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
@@ -47,6 +32,3 @@ return [
     'supports_credentials' => true,
 
 ];
-
-
-
