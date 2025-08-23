@@ -72,7 +72,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     // await csrf();
-    await csrf();
+    // await csrf();
     try {
       setLoading(true);
       const response = await axios.post(
