@@ -21,3 +21,8 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+stripe.exe
+vercelignore
+mysql.env
+phpmyadmin.env
+service.env
