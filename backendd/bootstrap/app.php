@@ -3,6 +3,9 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Illuminate\Http\Middleware\HandleCors;
+use App\Http\Middleware\EnsureEmailIsVerified;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,23 +15,25 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // CORS Middleware
-        $middleware->api(prepend: [
-            \Fruitcake\Cors\HandleCors::class,
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
-
+        // --- Global Middleware ---
         $middleware->web(prepend: [
-            \Fruitcake\Cors\HandleCors::class,
+            HandleCors::class, // Built-in CORS for web routes
         ]);
 
-        // Alias for email verification
+        $middleware->api(prepend: [
+            HandleCors::class, // Built-in CORS for API routes
+            EnsureFrontendRequestsAreStateful::class, // Sanctum session handling
+        ]);
+
+        // Middleware aliases
         $middleware->alias([
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'verified' => EnsureEmailIsVerified::class,
         ]);
 
-        // CSRF Token Validation (disable for API routes)
-        $middleware->validateCsrfTokens(except: ['*']);
+        // CSRF configuration
+        $middleware->validateCsrfTokens(except: [
+            '*', // Allow API requests from external clients
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
