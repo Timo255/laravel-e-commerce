@@ -23,13 +23,6 @@ const Login = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [errMsgObj, setErrMsgObj] = useState(null);
   const [show, setShow] = useState(false);
-  // const csrf = () => axios.get("/sanctum/csrf-cookie");
-
-  // useEffect(() => {
-  //   userRef.current.focus();
-  // }, []);
-
-  // console.log(errMsg);
 
   // empty out any errMsg that might have when the user changes the user and pwd state
   useEffect(() => {
@@ -37,44 +30,13 @@ const Login = () => {
     // setLoading(false);
   }, [user, pwd]);
 
-  //  const getUser = async () => {
-  //     // setLoading(true);
-  //     const { data } = await axios.get("/api/user");
-  //     console.log(data)
-  //     setAuth(data);
-  //     // setLoading(false);
-  //   };
-
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     await login({ email: user, password: pwd });
-  //     navigate(from, { replace: true });
-  //     setUser("");
-  //     setPwd("");
-  //   } catch (error) {
-  //     console.log(error);
-  //     //  if (!err?.response) {
-  //     //   setErrMsg("No Server Response");
-  //     // } else if (err.response?.status === 400) {
-  //     //   setErrMsg("Missing Username or Password");
-  //     // } else if (err.response?.status === 401) {
-  //     //   setErrMsg("Unauthorized");
-  //     // } else if (err?.response?.status === 422) {
-  //     //   setErrMsg(err?.data?.errors);
-  //     // } else {
-  //     //   setErrMsg("Login Failed");
-  //     // }
-  //     // errRef.current.focus();
-  //   }
-  // };
-
+ 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // await csrf();
-    // await csrf();
+    
     try {
       setLoading(true);
+      await axios.get("/sanctum/csrf-cookie"); // get CSRF token
       const response = await axios.post(
         "/login",
         { email: user, password: pwd }
@@ -109,14 +71,10 @@ const Login = () => {
     setShow(!show);
   };
 
-  //  if(auth?.name){
-  //   return <Navigate to={"/"} state={{ from: location }} replace/>
-  // }
 
   return (
     <>
       {isLoading ? (
-        // <h1>loading..</h1>
         <div>
           <div className="loading">
             <img src="/Rolling@1x-1.0s-200px-200px.svg" alt="" />
