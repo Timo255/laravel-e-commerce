@@ -14,6 +14,7 @@ return [
 
     'allowed_origins' => [
         'https://laravel-e-commerce-frontend.onrender.com',
+        'http://localhost:5173/'
     ],
 
     'allowed_origins_patterns' => [],
