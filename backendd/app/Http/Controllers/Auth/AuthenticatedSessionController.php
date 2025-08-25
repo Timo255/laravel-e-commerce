@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -13,26 +14,35 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request): JsonResponse
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        // Get the authenticated user
+        $user = $request->user();
+        
+        // Create a token for the user
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->noContent();
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'message' => 'Login successful'
+        ]);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
+        // Revoke the current access token
+        if ($request->user()) {
+            $request->user()->currentAccessToken()->delete();
+        }
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Logout successful'
+        ]);
     }
 }
