@@ -5,15 +5,11 @@ import axios from "../axiosApi/axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
-  const { login, getUser, isLoading, setLoading,auth,csrf } = useAuth();
-
- 
+  const { login, getUser, isLoading, setLoading, auth } = useAuth();
 
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from?.pathname || "/";
-
-  
 
   const userRef = useRef();
   const errRef = useRef();
@@ -27,50 +23,53 @@ const Login = () => {
   // empty out any errMsg that might have when the user changes the user and pwd state
   useEffect(() => {
     setErrMsg("");
-    // setLoading(false);
   }, [user, pwd]);
 
- 
   const handleLogin = async (e) => {
     e.preventDefault();
     
     try {
       setLoading(true);
-      await axios.get("/sanctum/csrf-cookie"); // get CSRF token
-      const response = await axios.post(
-        "/login",
-        { email: user, password: pwd }
-        // JSON.stringify({ email: user, password: pwd })
-      );
+      
+      // Step 1: Get CSRF token
+      await axios.get("/sanctum/csrf-cookie");
+      
+      // Step 2: Login
+      const response = await axios.post("/login", { 
+        email: user, 
+        password: pwd 
+      });
+      
+      console.log("Login successful:", response.status);
+      
+      // Step 3: Get user data
       await getUser();
+      
+      // Step 4: Navigate on success
       navigate(from, { replace: true });
-      setLoading(false);
+      
     } catch (err) {
+      console.error("Login error:", err);
+      
       if (!err?.response) {
         setErrMsg("No Server Response");
-        setLoading(false);
       } else if (err.response?.status === 400) {
         setErrMsg("Missing Username or Password");
-        setLoading(false);
       } else if (err.response?.status === 401) {
-        setErrMsg("Unauthorized");
-        setLoading(false);
+        setErrMsg("Invalid credentials");
       } else if (err?.response?.status === 422) {
         setErrMsgObj(err?.response?.data?.errors);
-        setLoading(false);
       } else {
         setErrMsg("Login Failed");
-        setLoading(false);
       }
-      console.log(err);
-      // errRef.current.focus();
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleShowPwd = () => {
     setShow(!show);
   };
-
 
   return (
     <>
@@ -114,7 +113,6 @@ const Login = () => {
                   type="text"
                   name="email"
                   id="email"
-                  // ref={userRef}
                   placeholder="Email Address *"
                   onChange={(e) => setUser(e.target.value)}
                   required
