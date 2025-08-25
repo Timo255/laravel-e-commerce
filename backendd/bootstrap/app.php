@@ -14,34 +14,34 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            // \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            // \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            // \Illuminate\Session\Middleware\StartSession::class,
+            // \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            // \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
         ]);
 
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
 
-         // Add CSRF token validation for specific routes only
-        $middleware->validateCsrfTokens(except: [
-            'webhook',
-            'webhooktest',
-            'stripe/*'
-        ]);
+        //  // Add CSRF token validation for specific routes only
+        // $middleware->validateCsrfTokens(except: [
+        //     'webhook',
+        //     'webhooktest',
+        //     'stripe/*'
+        // ]);
 
         // Ensure CSRF is validated for web routes, exclude for API routes
-        // $middleware->validateCsrfTokens(except: [
-        //     'api/*',
-        //     'sanctum/csrf-cookie',
-        //     'login',
-        //     'logout',
-        //     'register',
-        //     'forgot-password',
-        //     'reset-password'
-        // ]);
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+            'sanctum/csrf-cookie',
+            'login',
+            'logout',
+            'register',
+            'forgot-password',
+            'reset-password'
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
