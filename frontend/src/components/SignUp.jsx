@@ -10,8 +10,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "../axiosApi/axios";
 import useAuth from "../hooks/useAuth";
 
-const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/; // first array says start with a lowercase or uppercase letter 2nd Array says the next letters can be lowercase uppercase digits or _ and must be 3 to 23 char so full username must be 4 - 24 char
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/; // means requires one lowercase, one uppercase, one digit and one !@#$% and can 8-24 char
+const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/;
+const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const Email_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const SignUp = () => {
@@ -41,10 +41,10 @@ const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const { getUser, isLoading, setLoading, csrf } = useAuth();
+  const { isLoading, setLoading, setAuth } = useAuth();
 
   useEffect(() => {
-    userRef.current.focus(); //focus on user Input field when component loads
+    userRef.current.focus();
   }, []);
 
   // checking if username valid format
@@ -59,7 +59,7 @@ const SignUp = () => {
     setValidEmail(result);
   }, [email]);
 
-  // checking if pwd is in valid format and  match with confirmPwd
+  // checking if pwd is in valid format and match with confirmPwd
   useEffect(() => {
     const result = PWD_REGEX.test(pwd);
     setValidPwd(result);
@@ -70,14 +70,15 @@ const SignUp = () => {
   // clear error message when try to change user || pwd || matchPwd
   useEffect(() => {
     setErrMsg("");
-  }, [user, pwd, matchPwd]);
+    setErrMsgObj(null);
+  }, [user, pwd, matchPwd, email]);
 
-  const from = location.state?.from?.pathname || "/login";
+  const from = location.state?.from?.pathname || "/";
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // if button enabled with JS hack
+    // Validation check
     const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
     const v3 = Email_REGEX.test(email);
@@ -85,32 +86,58 @@ const SignUp = () => {
       setErrMsg("Invalid Entry");
       return;
     }
-    // await csrf();
+
     try {
       setLoading(true);
-      await axios.get("/sanctum/csrf-cookie"); // get CSRF token
-      const response = await axios.post(
-        "/register",
-        JSON.stringify({
-          name: user,
-          email: email,
-          password: pwd,
-          password_confirmation: matchPwd,
-        })
-      );
-      await getUser();
-      // navigate(from, { replace: true });
-      navigate("/");
-      setLoading(true);
+      
+      // For token-based auth, no CSRF cookie needed
+      const response = await axios.post("/register", {
+        name: user,
+        email: email,
+        password: pwd,
+        password_confirmation: matchPwd,
+      });
+
+      console.log("Registration successful:", response.status);
+      console.log("Response data:", response.data);
+
+      // Store the token from the response
+      const token = response.data.token;
+      const userData = response.data.user;
+
+      if (token) {
+        localStorage.setItem('auth_token', token);
+        
+        // Set the token in axios headers for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Set user data directly
+        setAuth(userData);
+        
+        // Navigate to home page
+        navigate("/", { replace: true });
+      } else {
+        setErrMsg("Registration successful but no token received");
+        // Navigate to login if no token
+        navigate("/login");
+      }
+
     } catch (err) {
-      if (err?.response) {
+      console.error("Registration error:", err);
+      
+      if (!err?.response) {
         setErrMsg("No Server Response");
       } else if (err?.response?.status === 422) {
         setErrMsgObj(err?.response?.data?.errors);
       } else {
         setErrMsg("Registration Failed");
       }
-      errRef.current.focus(); // set focuc on the error for the screen reader to read or anyOther tech when their is an error
+      
+      if (errRef.current) {
+        errRef.current.focus();
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,11 +207,10 @@ const SignUp = () => {
                   onChange={(e) => setUser(e.target.value)}
                   required
                   aria-invalid={validName ? "false" : "true"}
-                  aria-describedby="uidnote" // allow to add another element that describes this input field
+                  aria-describedby="uidnote"
                   onFocus={() => setUserFocus(true)}
                   onBlur={() => setUserFocus(false)}
                 />
-                {/* and this is the element that describes input field Above for user */}
                 <p
                   id="uidnote"
                   className={
@@ -192,7 +218,6 @@ const SignUp = () => {
                       ? "instructions"
                       : "offscreen"
                   }
-                  // className="instructions"
                 >
                   <FaInfoCircle className="faCircle" />
                   4 to 24 characters.
@@ -222,12 +247,11 @@ const SignUp = () => {
                   placeholder="Email Address *"
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  aria-invalid={validPwd ? "false" : "true"}
+                  aria-invalid={validEmail ? "false" : "true"}
                   aria-describedby="emailnote"
                   onFocus={() => setEmailFocus(true)}
                   onBlur={() => setEmailFocus(false)}
                 />
-                {/* and this is the element that describes input field Above for user */}
                 <p
                   id="emailnote"
                   className={
@@ -235,10 +259,9 @@ const SignUp = () => {
                       ? "instructions"
                       : "offscreen"
                   }
-                  // className="instructions"
                 >
                   <FaInfoCircle className="faCircle" />
-                  Enter valid email formart.
+                  Enter valid email format.
                 </p>
               </div>
 
@@ -284,7 +307,6 @@ const SignUp = () => {
                   className={
                     pwdFocus && !validPwd ? "instructions" : "offscreen"
                   }
-                  // className="instructions"
                 >
                   <FaInfoCircle />
                   8 to 24 characters.
@@ -349,20 +371,24 @@ const SignUp = () => {
                       ? "instructions"
                       : "offscreen"
                   }
-                  // className="instructions"
                 >
                   <FaInfoCircle />
                   Must match the first password input field.
                 </p>
               </div>
-              {/* showing message*/}
+
               <div>
                 {errorMessage && (
                   <div className="errorMessage">{errorMessage}</div>
                 )}
               </div>
+              
               <div className="form-group">
-                <button type="submit" className="btnForm">
+                <button 
+                  type="submit" 
+                  className="btnForm"
+                  disabled={!validName || !validEmail || !validPwd || !validMatch}
+                >
                   <span>SignUp</span>
                 </button>
               </div>
