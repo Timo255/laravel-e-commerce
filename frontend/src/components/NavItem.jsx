@@ -10,64 +10,119 @@ import axios from "../axiosApi/axios";
 
 const NavItem = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  // const [loading, setLoading] = useState(false);
   const { cartNumber, cartItems } = useContext(ProductCart);
-  const { user, LogOut } = useContext(AuthContext);
   const location = useLocation();
   const [menuActive, setMenuActive] = useState("");
-  const { auth, setAuth, getUser,setLoading } = useAuth();
+  
+  // Use auth context
+  const { auth, setAuth, getUser, isLoading, setLoading } = useAuth();
+  
   const navigate = useNavigate();
 
-  const from = location.state?.from?.pathname || "/";
-
+  // Set initial menu active state based on current location
   useEffect(() => {
     const selectMenuActive = () => {
-      if (location.pathname == "/") {
+      if (location.pathname === "/") {
         setMenuActive("/");
-      } else if (location.pathname == "/shop") {
+      } else if (location.pathname === "/shop") {
         setMenuActive("/shop");
+      } else if (location.pathname === "/orderPage") {
+        setMenuActive("/orderPage");
+      } else {
+        setMenuActive("");
       }
     };
 
-    console.log(auth)
+    console.log("Current auth:", auth);
     selectMenuActive();
     
-    if(!auth){
-      getUser();
+    // Check if user is authenticated when component mounts
+    if (!auth || !auth.name) {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        // Set token in axios headers
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        // Get user data
+        getUser();
+      }
     }
-  }, [menuActive]);
+  }, [location.pathname, auth, getUser]);
 
   const handleScroll = (activeName) => {
-    window.scroll(0, 0);
+    window.scrollTo(0, 0);
     setMenuOpen(false);
     setMenuActive(activeName);
   };
 
-
   const handleLogout = async () => {
     try {
       setLoading(true);
-      await axios.post("/logout");
-      setLoading(false);
+      
+      // Get token from localStorage
+      const token = localStorage.getItem('auth_token');
+      
+      if (token) {
+        // Set token in headers for logout request
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        try {
+          // Call logout endpoint
+          await axios.post("/logout");
+        } catch (logoutError) {
+          console.error("Logout API error:", logoutError);
+          // Continue with local cleanup even if API fails
+        }
+      }
+      
+      // Always clear local storage and state
+      localStorage.removeItem('auth_token');
+      delete axios.defaults.headers.common['Authorization'];
+      
+      // Clear auth state
       setAuth({});
-      localStorage.removeItem("auth_token")
-      navigate(from, { replace: true });
+      
+      // Navigate to home page
+      navigate("/", { replace: true });
+      
+      // Close mobile menu if open
+      setMenuOpen(false);
+      
     } catch (err) {
-      console.log(err);
+      console.error("Logout error:", err);
+      
+      // Even if there's an error, clear local state
+      localStorage.removeItem('auth_token');
+      delete axios.defaults.headers.common['Authorization'];
+      setAuth({});
+      navigate("/", { replace: true });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleMenuToggle = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
+  // Check if user is authenticated
+  const isAuthenticated = auth && auth.name && localStorage.getItem('auth_token');
 
   return (
     <div className="wrapper-nav-div">
       <div id="logo-nav-div">
         <Link
           to="/"
-          onClick={() => window.scroll(0, 0)}
+          onClick={() => handleScroll("/")}
           style={{ textDecoration: "none" }}
           className="logo"
         >
           LOGO
         </Link>
+        
         <div id="nav-icons">
           <nav>
             <div id="navLinks" className={menuOpen ? "activeNavLink" : ""}>
@@ -80,6 +135,7 @@ const NavItem = () => {
               >
                 Home
               </Link>
+              
               <Link
                 onClick={() => handleScroll("/shop")}
                 to="/shop"
@@ -89,9 +145,11 @@ const NavItem = () => {
               >
                 Shop
               </Link>
-              {auth.name && (
+              
+              {/* Only show Orders link if user is authenticated */}
+              {isAuthenticated && (
                 <Link
-                  onClick={() => handleScroll("/orders")}
+                  onClick={() => handleScroll("/orderPage")}
                   to="/orderPage"
                   className={`nav-item ${
                     menuActive === "/orderPage" ? "active" : ""
@@ -101,42 +159,61 @@ const NavItem = () => {
                 </Link>
               )}
             </div>
-            {auth.name ? (
+            
+            {/* Authentication section */}
+            {isLoading ? (
+              <div className="nameLogout">
+                <p className="logoutCart">Loading...</p>
+              </div>
+            ) : isAuthenticated ? (
               <div className="nameLogout">
                 <p className="logoutCart">Welcome {auth.name}</p>
-                <p onClick={handleLogout}>Logout</p>
+                <p 
+                  onClick={handleLogout}
+                  style={{ cursor: 'pointer' }}
+                  className="logout-btn"
+                >
+                  Logout
+                </p>
               </div>
             ) : (
               <>
                 <Link
                   to="/sign-up"
-                  onClick={() => window.scroll(0, 0)}
+                  onClick={closeMenu}
                   className="nav-item signUp"
                 >
                   SignUp
                 </Link>
                 <Link
                   to="/login"
-                  onClick={() => window.scroll(0, 0)}
+                  onClick={closeMenu}
                   className="nav-item login"
                 >
                   Login
                 </Link>
               </>
             )}
+            
+            {/* Cart section */}
             <div
               className="nav-icon"
-              id={`${user ? "cartBtn" : "cartBtnLogout"}`}
+              id={`${isAuthenticated ? "cartBtn" : "cartBtnLogout"}`}
             >
-              <Link to="/cart">
-                <img src={cartIcon} alt="" />
+              <Link to="/cart" onClick={closeMenu}>
+                <img src={cartIcon} alt="Cart" />
               </Link>
-              <span className={`${user ? "num" : "numLogout"}`}>
+              <span className={`${isAuthenticated ? "num" : "numLogout"}`}>
                 {cartItems ? cartNumber : 0}
               </span>
             </div>
-            <div id="menuBtn" onClick={(e) => setMenuOpen(!menuOpen)}>
-              <img src={menuOpen ? CloseIcon : MenuIcon} alt="" />
+            
+            {/* Mobile menu button */}
+            <div id="menuBtn" onClick={handleMenuToggle}>
+              <img 
+                src={menuOpen ? CloseIcon : MenuIcon} 
+                alt={menuOpen ? "Close Menu" : "Open Menu"} 
+              />
             </div>
           </nav>
         </div>
