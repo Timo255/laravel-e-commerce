@@ -6,7 +6,10 @@ return [
         'api/*',
         'sanctum/csrf-cookie',
         'login',
-        'logout'
+        'logout',
+        'register',
+        'forgot-password',    // This one
+        'reset-password'
     ],
 
     'allowed_methods' => ['*'],
