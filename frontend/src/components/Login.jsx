@@ -5,7 +5,7 @@ import axios from "../axiosApi/axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
-  const { login, getUser, isLoading, setLoading, auth } = useAuth();
+  const { getUser, isLoading, setLoading, setAuth } = useAuth();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,22 +31,33 @@ const Login = () => {
     try {
       setLoading(true);
       
-      // Step 1: Get CSRF token
-      await axios.get("/sanctum/csrf-cookie");
-      
-      // Step 2: Login
+      // Use Breeze login endpoint (no CSRF needed for token auth)
       const response = await axios.post("/login", { 
         email: user, 
         password: pwd 
       });
       
       console.log("Login successful:", response.status);
+      console.log("Response data:", response.data);
       
-      // Step 3: Get user data
-      await getUser();
+      // Store the token from the response
+      const token = response.data.token;
+      const userData = response.data.user;
       
-      // Step 4: Navigate on success
-      navigate(from, { replace: true });
+      if (token) {
+        localStorage.setItem('auth_token', token);
+        
+        // Set the token in axios headers for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Set user data directly (no need for separate API call)
+        setAuth(userData);
+        
+        // Navigate on success
+        navigate(from, { replace: true });
+      } else {
+        setErrMsg("No token received from server");
+      }
       
     } catch (err) {
       console.error("Login error:", err);
