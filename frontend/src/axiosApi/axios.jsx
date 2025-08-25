@@ -8,6 +8,12 @@ const api = axios.create({
   withCredentials: true,
 });
 
+export const axiosPrivate = axios.create({
+  baseURL: BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true
+});
+
 // Add request interceptor to include CSRF token in headers
 const addCSRFToken = (config) => {
   const token = document.cookie
