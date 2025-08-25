@@ -23,7 +23,7 @@ use App\Http\Controllers\ProductController;
 //     return $response;
 // });
 
-Route::middleware(['auth:sanctum', 'web'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
