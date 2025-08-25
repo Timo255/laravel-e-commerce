@@ -30,7 +30,8 @@ function App() {
             <Route path="login" element={<Login />} />
             <Route path="sign-up" element={<SignUp />} />
             <Route path="forgot-pwd" element={<ForgotPwd />} />
-            <Route path="/password-reset/:token" element={<ResetPwd />} />
+            {/* Updated route to match your reset password URL */}
+            <Route path="reset-password" element={<ResetPwd />} />
 
             {/* Persistent routes*/}
             <Route element={<PersistLogin />}>
