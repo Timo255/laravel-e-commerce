@@ -25,16 +25,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
 
-        // Ensure CSRF is validated for web routes, exclude for API routes
+         // Add CSRF token validation for specific routes only
         $middleware->validateCsrfTokens(except: [
-            'api/*',
-            'sanctum/csrf-cookie',
-            'login',
-            'logout',
-            'register',
-            'forgot-password',
-            'reset-password'
+            'webhook',
+            'webhooktest',
+            'stripe/*'
         ]);
+
+        // Ensure CSRF is validated for web routes, exclude for API routes
+        // $middleware->validateCsrfTokens(except: [
+        //     'api/*',
+        //     'sanctum/csrf-cookie',
+        //     'login',
+        //     'logout',
+        //     'register',
+        //     'forgot-password',
+        //     'reset-password'
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
