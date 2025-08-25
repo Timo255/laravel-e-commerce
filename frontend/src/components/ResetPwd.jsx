@@ -6,7 +6,7 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../axiosApi/axios";
 import { verifyResetToken } from "../Services/AuthServices";
 import useAuth from "../hooks/useAuth";
@@ -33,32 +33,25 @@ const ResetPwd = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [searchParams] = useSearchParams();
   const [successMsg, setSuccessMsg] = useState("");
-  const { token } = useParams();
   const { isLoading, setLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    setEmail(searchParams.get("email"));
-    console.log(email);
-  }, []);
+    // Get both token and email from query parameters
+    const tokenFromUrl = searchParams.get("token");
+    const emailFromUrl = searchParams.get("email");
+    
+    setEmail(emailFromUrl);
+    console.log("Email:", emailFromUrl);
+    console.log("Token:", tokenFromUrl);
 
-  useEffect(() => {
-    const verify = async () => {
-      // getting the token in the reset-pwd URL
-      // const {token} = useParams();
-      // const email = searchParams.get("email");
-      // console.log(email);
-
-      if (token) {
-        setResetToken(token);
-        setTokenVerified(true);
-      } else {
-        setTokenVerified(false);
-      }
-    };
-
-    verify();
-  }, [searchParams, pwd, matchPwd]);
+    if (tokenFromUrl && emailFromUrl) {
+      setResetToken(tokenFromUrl);
+      setTokenVerified(true);
+    } else {
+      setTokenVerified(false);
+    }
+  }, [searchParams]);
 
   // checking if pwd is in valid format and  match with confirmPwd
   useEffect(() => {
@@ -289,7 +282,7 @@ const ResetPwd = () => {
         </div>
       ) : (
         <div className="auth_form">
-          <p>Invalid token</p>
+          <p>Invalid token or missing parameters</p>
         </div>
       )}
     </>
