@@ -50,6 +50,7 @@ const NavItem = () => {
       await axios.post("/logout");
       setLoading(false);
       setAuth({});
+      localStorage.removeItem("auth_token")
       navigate(from, { replace: true });
     } catch (err) {
       console.log(err);
