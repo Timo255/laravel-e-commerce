@@ -56,6 +56,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL points to your frontend application and will be used
+    | for generating links in emails that should redirect to the frontend.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'https://laravel-e-commerce-frontend.onrender.com'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL points to your frontend application and will be used
+    | for generating links in emails that should redirect to the frontend.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
