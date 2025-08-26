@@ -102,8 +102,8 @@ class stripeController extends Controller
                 // ],
                 'line_items'                  => $lineItems,
                 'mode'                        => 'payment',
-                'success_url'                 => "http://localhost:5173/orderPage?success=true",
-                'cancel_url'                  => "http://localhost:5173/cart?cancel=true",
+                'success_url'                 => "https://laravel-e-commerce-frontend.onrender.com/orderPage?success=true",
+                'cancel_url'                  => "https://laravel-e-commerce-frontend.onrender.com/cart?cancel=true",
                 'customer_creation'           => 'always',
                 'metadata'                    => [
                     "customer_userId" => $request->userId,
