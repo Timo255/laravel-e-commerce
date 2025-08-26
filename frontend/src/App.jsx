@@ -29,6 +29,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="shop" element={<Shop />} />
             <Route path="shop/:uuid" element={<ProductCard />} />
+            <Route path="cart" element={<CartPage />} />
             <Route path="login" element={<Login />} />
             <Route path="sign-up" element={<SignUp />} />
             <Route path="forgot-pwd" element={<ForgotPwd />} />
@@ -37,7 +38,6 @@ function App() {
 
             {/* Persistent routes for authenticated features*/}
             <Route element={<PersistLogin />}>
-              <Route path="cart" element={<CartPage />} />
               {/* Protected routes*/}
               <Route element={<PrivateRoute />}>
                 <Route path="orderPage" element={<Orders />} />
