@@ -26,24 +26,21 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             {/* public routes */}
-            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/" element={<Home />} />
+            <Route path="shop" element={<Shop />} />
+            <Route path="shop/:uuid" element={<ProductCard />} />
             <Route path="login" element={<Login />} />
             <Route path="sign-up" element={<SignUp />} />
             <Route path="forgot-pwd" element={<ForgotPwd />} />
             {/* Updated route to match your reset password URL */}
             <Route path="reset-password" element={<ResetPwd />} />
 
-            {/* Persistent routes*/}
+            {/* Persistent routes for authenticated features*/}
             <Route element={<PersistLogin />}>
-              <Route path="/" element={<Home />} />
-              <Route path="shop" element={<Shop />} />
-              <Route path="shop/:uuid" element={<ProductCard />} />
               <Route path="cart" element={<CartPage />} />
               {/* Protected routes*/}
               <Route element={<PrivateRoute />}>
-                <Route element={<PrivateRoute />}>
                 <Route path="orderPage" element={<Orders />} />
-              </Route>
               </Route>
             </Route>
 
