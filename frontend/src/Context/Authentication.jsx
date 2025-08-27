@@ -6,7 +6,6 @@ const initValue = {
   auth: {},
   setAuth: () => {},
   getUser: () => {},
-  login: () => {},
   register: () => {},
   errMsg: "",
   setErrMsg: () => {},
@@ -44,38 +43,6 @@ const Authentication = ({ children }) => {
     }
   };
 
-  const login = async ({ ...data }) => {
-    try {
-      setLoading(true);
-      
-      // Get CSRF token first
-      await csrf();
-      
-      // Login request
-      const response = await axios.post("/login", data);
-      console.log("Login response:", response.status);
-      
-      // Get user data after successful login
-      await getUser();
-      
-    } catch (err) {
-      console.error("Login error:", err);
-      
-      if (!err?.response) {
-        setErrMsg("No Server Response");
-      } else if (err.response?.status === 400) {
-        setErrMsg("Missing Username or Password");
-      } else if (err.response?.status === 401) {
-        setErrMsg("Invalid credentials");
-      } else if (err?.response?.status === 422) {
-        setErrMsg(err?.response?.data?.errors);
-      } else {
-        setErrMsg("Login Failed");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Check if user is already authenticated on app start
   useEffect(() => {
@@ -106,7 +73,6 @@ const Authentication = ({ children }) => {
     persist,
     setPersist,
     getUser,
-    login,
     errMsg,
     setErrMsg,
     isLoading,
