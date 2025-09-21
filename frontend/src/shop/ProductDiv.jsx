@@ -8,14 +8,13 @@ const ProductDiv = () => {
   const [searchedItem, setSearchItem] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const firstLoad = useRef(true); // ✅ track first load only
+  const firstLoad = useRef(true); // ✅ track only first load
 
   useEffect(() => {
     const getAllProducts = async () => {
       try {
-        // Show loading ONLY on first load
         if (firstLoad.current) {
-          setLoading(true);
+          setLoading(true); // show loader only on first load
         }
 
         const { data } = await axios.get(
@@ -23,11 +22,11 @@ const ProductDiv = () => {
         );
         setItems(data?.prds || []);
       } catch (error) {
-        console.log(error);
+        console.log("Error fetching products:", error);
       } finally {
         if (firstLoad.current) {
           setLoading(false);
-          firstLoad.current = false; // ✅ mark as loaded
+          firstLoad.current = false; // stop loader after first load
         }
       }
     };
@@ -35,8 +34,17 @@ const ProductDiv = () => {
     getAllProducts();
   }, [selectedCategory, searchedItem]);
 
+  // ✅ Handle category clicks
   const filterItems = (categItem) => {
     setSelectedCategory(categItem);
+    setSearchItem(""); // clear search when selecting category
+  };
+
+  // ✅ Handle search input
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchItem(value);
+    setSelectedCategory("all"); // 🔑 always reset to "all" when searching
   };
 
   return (
@@ -67,12 +75,13 @@ const ProductDiv = () => {
               type="search"
               id="searchField"
               placeholder="search items"
-              onChange={(e) => setSearchItem(e.target.value.toLowerCase())}
+              value={searchedItem}
+              onChange={handleSearch}
             />
           </div>
         </div>
 
-        {/* ✅ Only show loading on first page load */}
+        {/* ✅ Only show spinner on first page load */}
         {loading ? (
           <div className="loading-container">
             <div className="loading">
