@@ -44,28 +44,30 @@ const Authentication = ({ children }) => {
   };
 
 
-  // Check if user is already authenticated on app start
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        setLoading(true);
-        
-        // Try to get user data without login
-        const { data } = await axios.get("/api/user");
-        console.log("Already authenticated user:", data);
-        setAuth(data);
-        
-      } catch (error) {
-        console.log("User not authenticated on app start");
-        // User not authenticated, that's fine
-        setAuth({});
-      } finally {
-        setLoading(false);
-      }
-    };
+ useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      setLoading(true);
 
-    checkAuth();
-  }, []);
+      const token = localStorage.getItem("auth_token");
+      if (token) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      }
+
+      const { data } = await axios.get("/api/user");
+      // console.log("Already authenticated user:", data);
+      setAuth(data);
+    } catch (error) {
+      // console.log("User not authenticated on app start");
+      setAuth({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkAuth();
+}, []);
+
 
   const authInfo = {
     auth,
