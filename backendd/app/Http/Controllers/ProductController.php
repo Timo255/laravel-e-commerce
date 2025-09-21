@@ -81,46 +81,74 @@ class ProductController extends Controller
     }
 
     public function queryProducts()
-    {
-        $categoryName = request("categoryName");
-        $q            = request("q");
+{
+    $categoryName = request("categoryName");
+    $q = request("q");
 
-        try {
-            if ($categoryName != "" && $categoryName != "all") {
-                $productList = Redis::get("prdCategoryName:${categoryName}");
-                $products    = json_decode($productList);
-                if ($products == "") {
-                    $products = Product::where('category', "$categoryName")->where('isOffer', 'no')->with("variations")->get();
-                    Redis::setEx("prdCategoryName:${categoryName}", 60, $products);
-                }
-                return response()->json(['prds' => $products]);
-            } elseif ($categoryName == "all") {
+    try {
+        // 🔎 If search term exists, prioritize it
+        if (!empty($q)) {
+            $products = Product::where("isOffer", "no")
+                ->where(function ($query) use ($q) {
+                    $query->where("nameShop", "like", "%" . $q . "%")
+                          ->orWhere("nameProduct", "like", "%" . $q . "%");
+                })
+                ->with("variations")
+                ->get();
 
-                $productList = Redis::get("prdCategoryNameAll");
-                $products    = json_decode($productList);
-                if ($products == "") {
-                    $products = Product::where('isOffer', 'no')->with("variations")->get();
-                    Redis::setEx("prdCategoryNameAll", 60, $products);
-                }
-                return response()->json(['prds' => $products]);
-            } elseif ($q != "") {
-                $products = $products->where('nameShop', "like", "%" . $q . "%")->orWhere("nameProduct", "like", "%" . $q . "%")->with("variations")->get();
-                return response()->json(['prds' => $products]);
-            } else {
-                $productList = Redis::get("allproducts");
-                $products    = json_decode($productList);
-                if ($products == "") {
-                    $products = Product::where("isOffer", "no")->with("variations")->get();
-                    Redis::setEx("allproducts", 60, $products);
-                }
-
-                return response()->json(['prds' => $products]);
-            }
-        } catch (ErrorException $exception) {
-            Log::error($exception->getMessage());
-            return response()->json(['error' => $exception->getMessage()]);
+            return response()->json(['prds' => $products]);
         }
+
+        // 🔎 If category filtering
+        if (!empty($categoryName) && $categoryName !== "all") {
+            $productList = Redis::get("prdCategoryName:${categoryName}");
+            $products = json_decode($productList);
+
+            if (empty($products)) {
+                $products = Product::where("category", $categoryName)
+                    ->where("isOffer", "no")
+                    ->with("variations")
+                    ->get();
+                Redis::setEx("prdCategoryName:${categoryName}", 60, $products);
+            }
+
+            return response()->json(['prds' => $products]);
+        }
+
+        // 🔎 All products
+        if ($categoryName === "all") {
+            $productList = Redis::get("prdCategoryNameAll");
+            $products = json_decode($productList);
+
+            if (empty($products)) {
+                $products = Product::where("isOffer", "no")
+                    ->with("variations")
+                    ->get();
+                Redis::setEx("prdCategoryNameAll", 60, $products);
+            }
+
+            return response()->json(['prds' => $products]);
+        }
+
+        // 🔎 Default: return cached all products
+        $productList = Redis::get("allproducts");
+        $products = json_decode($productList);
+
+        if (empty($products)) {
+            $products = Product::where("isOffer", "no")
+                ->with("variations")
+                ->get();
+            Redis::setEx("allproducts", 60, $products);
+        }
+
+        return response()->json(['prds' => $products]);
+
+    } catch (ErrorException $exception) {
+        Log::error($exception->getMessage());
+        return response()->json(['error' => $exception->getMessage()]);
     }
+}
+
 
     public function relatedProducts()
     {
