@@ -21,32 +21,28 @@ const NavItem = () => {
 
   // Set initial menu active state based on current location
   useEffect(() => {
-    const selectMenuActive = () => {
-      if (location.pathname === "/") {
-        setMenuActive("/");
-      } else if (location.pathname === "/shop") {
-        setMenuActive("/shop");
-      } else if (location.pathname === "/orderPage") {
-        setMenuActive("/orderPage");
-      } else {
-        setMenuActive("");
-      }
-    };
-
-    console.log("Current auth:", auth);
-    selectMenuActive();
-    
-    // Check if user is authenticated when component mounts
-    if (!auth || !auth.name) {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        // Set token in axios headers
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        // Get user data
-        getUser();
-      }
+  const selectMenuActive = () => {
+    if (location.pathname === "/") {
+      setMenuActive("/");
+    } else if (location.pathname === "/shop") {
+      setMenuActive("/shop");
+    } else if (location.pathname === "/orderPage") {
+      setMenuActive("/orderPage");
+    } else {
+      setMenuActive("");
     }
-  }, [location.pathname, auth, getUser]);
+  };
+
+  selectMenuActive();
+
+  // Check token only once on mount/refresh
+  const token = localStorage.getItem("auth_token");
+  if (token && !auth?.name) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    getUser();
+  }
+}, [location.pathname]); 
+
 
   const handleScroll = (activeName) => {
     window.scrollTo(0, 0);
