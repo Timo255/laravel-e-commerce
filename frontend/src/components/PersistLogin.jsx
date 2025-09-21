@@ -1,38 +1,39 @@
 import { Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 
-const PersistLogin = ({ children }) => {
-  // const [isLoading, setLoading] = useState(true);
-  const refresh = useRefreshToken();
-  const { auth, getUser, setLoading, isLoading } = useAuth();
+const PersistLogin = () => {
+  const { auth, getUser, isLoading, setLoading } = useAuth();
 
   useEffect(() => {
     let isMounted = true;
-    const veryfyRefreshToken = async () => {
+
+    const verifyAuth = async () => {
       try {
-        // the auth will be added with a new accessToken
-        await getUser();
+        const token = localStorage.getItem("auth_token");
+        if (token && !auth?.name) {
+          await getUser();
+        }
       } catch (err) {
-        console.error(err);
+        console.error("PersistLogin error:", err);
       } finally {
-        isMounted && setLoading(false);
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    !auth?.name ? veryfyRefreshToken() : setLoading(false);
+    verifyAuth();
 
-    return () => (isMounted = false);
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [auth?.name, getUser, setLoading]);
 
   return (
     <>
       {isLoading ? (
         <div>
           <div className="loading">
-            <img src="/Rolling@1x-1.0s-200px-200px.svg" alt="" />
+            <img src="/Rolling@1x-1.0s-200px-200px.svg" alt="Loading..." />
           </div>
         </div>
       ) : (
