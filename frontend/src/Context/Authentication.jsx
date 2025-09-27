@@ -17,27 +17,22 @@ export const AuthContext = createContext(initValue);
 const Authentication = ({ children }) => {
   const [auth, setAuth] = useState({});
   const [errMsg, setErrMsg] = useState("");
-
-  // 🔥 instead of a boolean, use a counter
-  const [loadingCount, setLoadingCount] = useState(0);
+  const [isLoading, setLoading] = useState(true);
+  const [persist, setPersist] = useState(
+    JSON.parse(localStorage.getItem("persist")) || false
+  );
 
   const csrf = () => axios.get("/sanctum/csrf-cookie");
 
-  const setLoading = (isLoading) => {
-    setLoadingCount((prev) =>
-      isLoading ? prev + 1 : Math.max(prev - 1, 0)
-    );
-  };
-
-  const isLoading = loadingCount > 0;
-
   const getUser = async () => {
-    setLoading(true); // increment
     try {
+      setLoading(true);
+
       const token = localStorage.getItem("auth_token");
       if (token) {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       } else {
+        // no token → user not logged in
         setAuth({});
         return;
       }
@@ -48,11 +43,11 @@ const Authentication = ({ children }) => {
     } catch (error) {
       console.error("Get user error:", error);
       if (error.response?.status === 401) {
-        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_token"); // clear bad token
         setAuth({});
       }
     } finally {
-      setLoading(false); // decrement
+      setLoading(false);
     }
   };
 
@@ -64,18 +59,18 @@ const Authentication = ({ children }) => {
   const authInfo = {
     auth,
     setAuth,
+    persist,
+    setPersist,
     getUser,
     errMsg,
     setErrMsg,
-    isLoading, // derived from counter
+    isLoading,
     setLoading,
     csrf
   };
 
   return (
-    <AuthContext.Provider value={authInfo}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
 };
 
