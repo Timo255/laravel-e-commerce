@@ -9,24 +9,25 @@ const NewProducts = () => {
   const [newProducts, setNewProducts] = useState();
   const { setLoading } = useAuth();
 
-  useEffect(() => {
-    const getNewProducts = async () => {
-      try {
-        setLoading(true);
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_APIURL}/api/newProducts`
-        );
-        console.log(data?.prds);
-        setNewProducts(data?.prds);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const getNewProducts = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_APIURL}/api/newProducts`
+      );
+      setNewProducts(data?.prds);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false); // always stop loading after request finishes
+    }
+  };
 
-    getNewProducts();
-    setLoading(false);
-  }, []);
+  getNewProducts();
+}, []);
+
+  
   return (
     <div className="wrapper-div">
       <div id="Product-div">
