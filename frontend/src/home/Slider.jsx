@@ -10,23 +10,25 @@ const Slider = () => {
   const [slideIndex, setSlideIndex] = useState(1);
   const { setLoading } = useAuth();
 
-  useEffect(() => {
-    const getSliderProducts = async () => {
-      try {
-        setLoading(true);
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_APIURL}/api/sliderProducts`
-        );
-        console.log("slider : ", data?.prds);
-        setProductsSlider(data?.prds);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
-    getSliderProducts();
-    setLoading(false);
-  }, []);
+useEffect(() => {
+  const getSliderProducts = async () => {
+    setLoading(true); // start spinner
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_APIURL}/api/sliderProducts`
+      );
+      console.log("slider : ", data?.prds);
+      setProductsSlider(data?.prds);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false); // stop spinner only after request finishes
+    }
+  };
+
+  getSliderProducts();
+}, []);
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
