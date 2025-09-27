@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const Offer = () => {
   const [productsOffer, setProductOffer] = useState();
+  const { setLoading } = useAuth();
 
-  useEffect(() => {
-    const getOffer = async () => {
-      const {data} = await axios.get(
+useEffect(() => {
+  const getOffer = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(
         `${import.meta.env.VITE_APIURL}/api/offers`
       );
-      console.log("offer : ", data?.prds[0] );
       setProductOffer(data?.prds[0]);
-    };
-    getOffer();
-  }, []);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  getOffer();
+}, []);
+
 
   return (
     <>
