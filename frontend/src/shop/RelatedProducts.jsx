@@ -8,7 +8,7 @@ const RelatedProducts = () => {
     useEffect(()=>{
       const getRelatedProducts = async () =>{
         const {data} = await axios.get(`${import.meta.env.VITE_APIURL}/api/relatedProducts`);
-        console.log("related prds : ", data?.prds);
+        // console.log("related prds : ", data?.prds);
         setRelatedProducts(data?.prds)
       }
 
