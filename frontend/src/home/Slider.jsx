@@ -17,7 +17,7 @@ useEffect(() => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_APIURL}/api/sliderProducts`
       );
-      console.log("slider : ", data?.prds);
+      // console.log("slider : ", data?.prds);
       setProductsSlider(data?.prds);
     } catch (error) {
       console.log(error);
