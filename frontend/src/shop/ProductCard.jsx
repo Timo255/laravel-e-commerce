@@ -11,7 +11,7 @@ const ProductCard = () => {
   useEffect(() => {
     const getAllProducts = async () => {
       const {data} = await axios.get("/api/allproducts");
-      console.log("allProduct :", data?.prds)
+      // console.log("allProduct :", data?.prds)
       setProducts(data?.prds);
     };
 
